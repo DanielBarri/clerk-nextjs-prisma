@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  clerkId   String     @unique
+  email     String     @unique
+  name      String?
+  surname   String?
+  role      String?    @default("student")
+  posts     Post[]
+  tests     Test[]
+  vocations Vocation[]
+}
+
+model Post {
+  id        String     @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean    @default(false)
+  authorId  String
+  author    User       @relation(fields: [authorId], references: [clerkId])
+  createdAt DateTime   @default(now())
+}
+
+model Test {
+  id           String          @id @default(cuid())
+  userId       String
+  timeFinished DateTime?
+  user         User            @relation(fields: [userId], references: [clerkId])
+  testQuestions TestQuestion[]
+  prompt       String?
+  analysis    String?
+}
+
+model TestQuestion {
+  id         String   @id @default(cuid())
+  testId     String
+  questionId String
+  userAnswer String?
+
+  test     Test     @relation(fields: [testId], references: [id])
+  question Question @relation(fields: [questionId], references: [id])
+
+  @@unique([testId, questionId]) // evita duplicados en un mismo test
+}
+
+model Question {
+  id            String         @id @default(cuid())
+  questionText  String         @unique
+  answerOptions String[]
+  createdAt     DateTime       @default(now())
+  testQuestions TestQuestion[]
+}
+
+model Vocation {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String   @unique
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [clerkId])
+  plans     Plan[]
+}
+
+model Plan {
+  id         String   @id @default(cuid())
+  vocationId String
+  name       String
+  createdAt  DateTime @default(now())
+  vocation   Vocation @relation(fields: [vocationId], references: [id])
+  topics     Topic[]
+}
+
+model Topic {
+  id         String   @id @default(cuid())
+  planId     String
+  name       String
+  createdAt  DateTime @default(now())
+  plan       Plan     @relation(fields: [planId], references: [id])
+  subtopics  Subtopic[]
+}
+
+model Subtopic {
+  id         String   @id @default(cuid())
+  topicId    String
+  name       String
+  createdAt  DateTime @default(now())
+  topic      Topic     @relation(fields: [topicId], references: [id])
+  links      Link[]
+}
+
+model Link {
+  id         String   @id @default(cuid())
+  subtopicId String
+  url        String
+  createdAt  DateTime @default(now())
+  subtopic   Subtopic @relation(fields: [subtopicId], references: [id])
+}

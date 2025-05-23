@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+    --background: #ffffff;
+    --foreground: #171717;
+    --lamaSky: #c3ebfa;
+    --lamaSkyLight: #edf9fd;
+    --lamaPurple: #cfceff;
+    --lamaPurpleLight: #f1f0ff;
+    --lamaYellow: #fae27c;
+    --lamaYellowLight: #fefce8;
+    --accent-color: #ff006e;
+    --accent2-color: #8338ec;
+    --accent3-color: #22c55e;
+    --accent4-color: #fb8500;
+    --primary-color: #5276fa;
+    --dark-text-color: #000000;
+    --gray-text-color: #6c757d;
+    --button-padding-x: 12px;
+    --button-padding-y: 8px;
+    --font-family-body: "Inter", sans-serif;
+    --light-text-color: #ffffff;
+    --dark-border-color: #303030;
+    --light-border-color: #e0e0e0;
+    --font-family-heading: "Poppins", sans-serif;
+    --button-rounded-radius: 8px;
+    --dark-background-color: #101010;
+    --light-background-color: #f5f9ff;
+    --medium-background-color: #e0f0ff;
+    --primary-button-bg-color: #5276fa;
+    --primary-button-text-color: #ffffff;
+    --secondary-button-bg-color: #ffffff;
+    --secondary-button-text-color: #3a86ff;
+    --primary-button-hover-bg-color: #265fd6;
+    --primary-button-hover-text-color: #ffffff;
+    --secondary-button-hover-bg-color: #e3f2ff;
+    --secondary-button-hover-text-color: #3a86ff;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+    --color-lamaSky: var(--lamaSky);
+    --color-lamaSkyLight: var(--lamaSkyLight);
+    --color-lamaPurple: var(--lamaPurple);
+    --color-lamaPurpleLight: var(--lamaPurpleLight);
+    --color-lamaYellow: var(--lamaYellow);
+    --color-lamaYellowLight: var(--lamaYellowLight);
 }
