@@ -3,9 +3,10 @@ import prisma from "@/lib/prisma";
 
 export async function GET(
     req: Request,
-    { params }: { params: { testId: string } }
+    context: { params: { testId: string } }
 ) {
-    const { testId } = params;
+    const { params } = context;
+    const { testId } = await params;
 
     if (!testId) {
         return NextResponse.json({ error: "Missing testId" }, { status: 400 });
