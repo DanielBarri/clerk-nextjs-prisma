@@ -8,23 +8,32 @@ export async function GET(
     const { params } = context;
     const { testId } = await params;
 
-    if (!testId) {
-        return NextResponse.json({ error: "Missing testId" }, { status: 400 });
-    }
-
     const test = await prisma.test.findUnique({
         where: { id: testId },
         select: {
             analysis: true,
+            vocations: {
+                include: {
+                    vocation: true,
+                },
+            },
         },
     });
 
-    if (!test || !test.analysis) {
-        return NextResponse.json(
-            { error: "Analysis not found" },
-            { status: 404 }
-        );
+    if (!test) {
+        return NextResponse.json({ error: "Test not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ analysis: test.analysis });
+    const profile = test.analysis;
+
+    const vocations = test.vocations.map((tv) => ({
+        id: tv.vocation.id,
+        name: tv.vocation.name,
+        TestVocation: {
+            profile: tv.profile,
+            justification: tv.justification,
+        },
+    }));
+
+    return NextResponse.json({ profile, vocations });
 }

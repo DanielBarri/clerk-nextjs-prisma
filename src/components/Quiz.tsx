@@ -7,15 +7,14 @@ type QuestionFromDB = {
     answerOptions: string[];
 };
 
+type TempAnswerMap = Record<string, string>;
+
 export default function Quiz({ userId }: { userId: string | null }) {
     const [questions, setQuestions] = useState<QuestionFromDB[]>([]);
     const [activeQuestion, setActiveQuestion] = useState<number>(0);
-    const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<
-        number | null
-    >(null);
-    const [checked, setChecked] = useState(false);
     const [testId, setTestId] = useState<string | null>(null);
     const [started, setStarted] = useState(false);
+    const [answers, setAnswers] = useState<TempAnswerMap>({});
 
     useEffect(() => {
         const fetchQuestions = async () => {
@@ -47,43 +46,49 @@ export default function Quiz({ userId }: { userId: string | null }) {
     const finishQuiz = async () => {
         if (!testId) return;
 
-        const res = await fetch("/api/analyze", {
+        const payload = {
+            testId,
+            answers: Object.entries(answers).map(
+                ([questionId, userAnswer]) => ({
+                    questionId,
+                    userAnswer,
+                })
+            ),
+        };
+
+        const saveRes = await fetch("/api/test-question/batch", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        if (!saveRes.ok) {
+            return alert("Error al guardar respuestas.");
+        }
+
+        // Finaliza test y guarda timeFinished y el prompt
+        const finishRes = await fetch("/api/tests/finish", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ testId }),
         });
 
-        if (res.ok) {
+        if (finishRes.ok) {
             window.location.href = `/quiz/results?testId=${testId}`;
         } else {
-            alert("Error generando el análisis del test.");
+            alert("Error al finalizar el test.");
         }
     };
 
-    const saveAnswer = async (questionId: string, userAnswer: string) => {
-        if (!testId) return;
-        await fetch("/api/test-question", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ testId, questionId, userAnswer }),
-        });
-    };
-
-    const onAnswerSelected = async (respuesta: string, idx: number) => {
-        if (checked && selectedAnswerIndex === idx) {
-            setSelectedAnswerIndex(null);
-            setChecked(false);
-        } else {
-            setSelectedAnswerIndex(idx);
-            setChecked(true);
-            const questionId = questions[activeQuestion].id;
-            await saveAnswer(questionId, respuesta);
-        }
+    const onAnswerSelected = (respuesta: string) => {
+        const questionId = questions[activeQuestion].id;
+        setAnswers((prev) => ({
+            ...prev,
+            [questionId]: respuesta,
+        }));
     };
 
     const nextQuestion = () => {
-        setSelectedAnswerIndex(null);
-        setChecked(false);
         if (activeQuestion < questions.length - 1) {
             setActiveQuestion((prev) => prev + 1);
         } else {
@@ -95,8 +100,6 @@ export default function Quiz({ userId }: { userId: string | null }) {
         if (activeQuestion > 0) {
             setActiveQuestion((prev) => prev - 1);
         }
-        setSelectedAnswerIndex(null);
-        setChecked(false);
     };
 
     if (!started) {
@@ -106,7 +109,7 @@ export default function Quiz({ userId }: { userId: string | null }) {
                     ¡Bienvenido al test vocacional!
                 </h1>
                 <p className="text-gray-600 text-lg">
-                    Este test te ayudará a descubrir tus vocaciones.{" "}
+                    Este test te ayudará a descubrir tus vocaciones.
                 </p>
                 <button
                     onClick={startTest}
@@ -122,6 +125,7 @@ export default function Quiz({ userId }: { userId: string | null }) {
     }
 
     const current = questions[activeQuestion];
+    const currentAnswer = answers[current.id];
 
     return (
         <div className="h-fit flex flex-col gap-2 justify-evenly">
@@ -138,9 +142,9 @@ export default function Quiz({ userId }: { userId: string | null }) {
                 {current.answerOptions.map((respuesta, idx) => (
                     <li
                         key={idx}
-                        onClick={() => onAnswerSelected(respuesta, idx)}
+                        onClick={() => onAnswerSelected(respuesta)}
                         className={`cursor-pointer transition-all duration-150 border border-gray-300 w-[300px] sm:w-[400px] p-2 rounded-md items-center justify-center list-none hover:bg-gray-200 hover:text-gray-500 ${
-                            selectedAnswerIndex === idx
+                            currentAnswer === respuesta
                                 ? "bg-blue-600 text-white"
                                 : "text-gray-500"
                         }`}>
@@ -158,9 +162,9 @@ export default function Quiz({ userId }: { userId: string | null }) {
                 </button>
                 <button
                     onClick={nextQuestion}
-                    disabled={!checked}
+                    disabled={!currentAnswer}
                     className={`w-[100px] h-[40px] rounded-md border-1 p-2 absolute right-0 bottom-0 ${
-                        checked
+                        currentAnswer
                             ? "border-gray-300 text-gray-500 hover:bg-gray-200"
                             : "text-gray-500 bg-gray-100 cursor-not-allowed"
                     }`}>

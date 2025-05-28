@@ -22,7 +22,8 @@
         "openai": "^4.102.0",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
-        "svix": "^1.65.0"
+        "svix": "^1.65.0",
+        "zod": "^3.25.32"
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3",
