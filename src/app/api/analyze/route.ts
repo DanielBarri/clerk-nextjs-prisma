@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         data: {
             prompt,
             analysis,
-            timeFinished: new Date().toLocaleString("en-US"),
+            timeFinished: new Date(),
         },
     });
 

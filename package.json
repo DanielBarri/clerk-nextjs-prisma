@@ -9,6 +9,7 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@clerk/backend": "^1.33.1",
         "@clerk/elements": "^0.23.28",
         "@clerk/nextjs": "^6.19.5",
         "@fortawesome/fontawesome-svg-core": "^6.7.2",

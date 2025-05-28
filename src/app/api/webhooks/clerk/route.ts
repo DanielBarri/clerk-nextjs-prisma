@@ -1,5 +1,5 @@
 import { Webhook } from "svix";
-import { WebhookEvent } from "@clerk/nextjs/server";
+import { WebhookEvent, clerkClient } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
 
@@ -11,7 +11,6 @@ export async function POST(req: Request) {
     }
 
     const wh = new Webhook(secret);
-
     let event: WebhookEvent;
 
     try {
@@ -30,8 +29,9 @@ export async function POST(req: Request) {
 
     if (event.type === "user.created") {
         const { id, email_addresses, first_name, last_name } = event.data;
-
         const email = email_addresses?.[0]?.email_address;
+        const client = await clerkClient();
+
         if (!email) {
             console.error("Missing email in Clerk payload");
             return new Response("Invalid user data", { status: 400 });
@@ -45,13 +45,25 @@ export async function POST(req: Request) {
                     clerkId: id,
                     email,
                     name: [first_name, last_name].filter(Boolean).join(" "),
+                    role: "student", // Default role
                 },
             });
         } catch (err) {
             console.error("Database error during user creation", err);
             return new Response("Database error", { status: 500 });
         }
+
+        try {
+            await client.users.updateUser(id, {
+                publicMetadata: { role: "student" },
+            });
+        } catch (err) {
+            console.error("Failed to update publicMetadata", err);
+            return new Response("Failed to update metadata", { status: 500 });
+        }
     }
+
+    // Set default role to "student" for new users
 
     return new Response("OK", { status: 200 });
 }

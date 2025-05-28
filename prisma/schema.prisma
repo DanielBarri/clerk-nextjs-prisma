@@ -13,96 +13,145 @@ datasource db {
 }
 
 model User {
-  clerkId   String     @unique
-  email     String     @unique
+  clerkId   String    @id
+  email     String    @unique
   name      String?
   surname   String?
-  role      String?    @default("student")
+  role      Role      @default(student)
   posts     Post[]
   tests     Test[]
-  vocations Vocation[]
+  topicProgress TopicProgress[]
+  subtopicProgress SubtopicProgress[]
 }
 
 model Post {
-  id        String     @id @default(cuid())
+  id        String   @id @default(uuid())
   title     String
   content   String?
-  published Boolean    @default(false)
+  published Boolean  @default(false)
+  author    User     @relation(fields: [authorId], references: [clerkId], onDelete: Cascade)
   authorId  String
-  author    User       @relation(fields: [authorId], references: [clerkId])
-  createdAt DateTime   @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Test {
-  id           String          @id @default(cuid())
-  userId       String
-  timeFinished DateTime?
-  user         User            @relation(fields: [userId], references: [clerkId])
+  id            String         @id @default(uuid())
+  user          User           @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
+  userId        String
+  timeFinished  DateTime?
+  prompt        String?
+  analysis      String?
   testQuestions TestQuestion[]
-  prompt       String?
-  analysis    String?
-}
-
-model TestQuestion {
-  id         String   @id @default(cuid())
-  testId     String
-  questionId String
-  userAnswer String?
-
-  test     Test     @relation(fields: [testId], references: [id])
-  question Question @relation(fields: [questionId], references: [id])
-
-  @@unique([testId, questionId]) // evita duplicados en un mismo test
+  vocations     TestVocation[]  // Relación many-to-many
 }
 
 model Question {
-  id            String         @id @default(cuid())
-  questionText  String         @unique
+  id            String   @id @default(uuid())
+  questionText  String   @unique
   answerOptions String[]
-  createdAt     DateTime       @default(now())
+  createdAt     DateTime @default(now())
   testQuestions TestQuestion[]
 }
 
+model TestQuestion {
+  id         String   @id @default(uuid())
+  test       Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  testId     String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String
+  userAnswer String?
+
+  @@unique([testId, questionId])
+}
+
 model Vocation {
-  id        String   @id @default(cuid())
-  userId    String
+  id        String   @id @default(uuid())
   name      String   @unique
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [clerkId])
   plans     Plan[]
+  tests     TestVocation[] // Relación many-to-many
+}
+
+// Tabla intermedia para relación Test <-> Vocation
+model TestVocation {
+  id          String    @id @default(uuid())
+  test        Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  testId      String
+  vocation    Vocation  @relation(fields: [vocationId], references: [id], onDelete: Cascade)
+  vocationId  String
+  profile     String?
+  justification String?
+
+  @@unique([testId, vocationId])
 }
 
 model Plan {
-  id         String   @id @default(cuid())
+  id         String   @id @default(uuid())
+  vocation   Vocation @relation(fields: [vocationId], references: [id], onDelete: Cascade)
   vocationId String
   name       String
+  description String? 
   createdAt  DateTime @default(now())
-  vocation   Vocation @relation(fields: [vocationId], references: [id])
   topics     Topic[]
 }
 
 model Topic {
-  id         String   @id @default(cuid())
-  planId     String
-  name       String
-  createdAt  DateTime @default(now())
-  plan       Plan     @relation(fields: [planId], references: [id])
-  subtopics  Subtopic[]
+  id        String   @id @default(uuid())
+  plan      Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planId    String
+  name      String
+  description String?
+  position Int @default(0)
+  createdAt DateTime @default(now())
+  subtopics Subtopic[]
+  topicProgress TopicProgress[]
+  @@unique([planId, name])
 }
 
 model Subtopic {
-  id         String   @id @default(cuid())
-  topicId    String
-  name       String
-  createdAt  DateTime @default(now())
-  topic      Topic     @relation(fields: [topicId], references: [id])
-  links      Link[]
+  id        String   @id @default(uuid())
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  topicId   String
+  name      String
+  description String?
+  position Int @default(0)
+  createdAt DateTime @default(now())
+  links     Link[]
+  subtopicProgress SubtopicProgress[]
+  @@unique([topicId, name])
 }
 
 model Link {
-  id         String   @id @default(cuid())
+  id         String   @id @default(uuid())
+  subtopic   Subtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
   subtopicId String
   url        String
   createdAt  DateTime @default(now())
-  subtopic   Subtopic @relation(fields: [subtopicId], references: [id])
+}
+
+model TopicProgress {
+  id       String @id @default(uuid())
+  user     User   @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
+  userId   String
+  topic    Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  topicId  String
+  completedAt DateTime? @default(now()) @updatedAt
+  @@unique([userId, topicId])
+}
+
+model SubtopicProgress {
+  id         String @id @default(uuid())
+  user       User   @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
+  userId     String
+  subtopic   Subtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+  subtopicId String
+  completedAt DateTime? @default(now()) @updatedAt
+  @@unique([userId, subtopicId])
+}
+
+enum Role {
+  student
+  teacher
+  parent
+  admin
 }
