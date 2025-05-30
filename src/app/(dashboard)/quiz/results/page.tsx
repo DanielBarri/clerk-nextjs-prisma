@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Announcements from "@/components/Announcements";
+import TestsList from "@/components/TestsList";
 
 interface Vocation {
     id: string;
@@ -37,6 +35,7 @@ const QuizResults = () => {
 
             setProfile(data.profile);
             setVocations(data.vocations || []);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -62,6 +61,7 @@ const QuizResults = () => {
             }
 
             await fetchResults();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             setError(err.message);
             setLoading(false);
@@ -69,8 +69,6 @@ const QuizResults = () => {
     };
 
     const handleCreatePlan = () => {
-        // Aquí puedes implementar la lógica para crear un plan de acción
-        // o redirigir a otra página si es necesario.
         console.log("Crear plan de acción");
     };
 
@@ -131,8 +129,9 @@ const QuizResults = () => {
                     </div>
                 )}
             </div>
+
             <div className="xl:w-1/3 flex flex-col gap-8">
-                <Announcements />
+                <TestsList />
             </div>
         </div>
     );

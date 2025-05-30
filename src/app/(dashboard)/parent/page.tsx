@@ -1,6 +1,6 @@
 "use client";
 
-import Announcements from "@/components/Announcements";
+import Announcements from "@/components/TestsList";
 
 const ParentPage = () => {
     return (

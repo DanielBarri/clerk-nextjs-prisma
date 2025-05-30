@@ -17,3 +17,29 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ id: test.id });
 }
+
+export async function GET() {
+    const tests = await prisma.test.findMany({
+        include: {
+            vocations: {
+                include: {
+                    vocation: true,
+                },
+            },
+        },
+        orderBy: {
+            timeFinished: "desc",
+        },
+    });
+
+    const formattedTests = tests.map((test) => ({
+        id: test.id,
+        timeFinished: test.timeFinished,
+        vocations: test.vocations.map((tv) => ({
+            id: tv.vocation.id,
+            name: tv.vocation.name,
+        })),
+    }));
+
+    return NextResponse.json({ tests: formattedTests });
+}

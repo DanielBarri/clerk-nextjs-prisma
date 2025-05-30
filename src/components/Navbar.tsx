@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faBullhorn,
+    faHouse,
     faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import { faMessage } from "@fortawesome/free-regular-svg-icons";
@@ -42,6 +43,16 @@ const Navbar = async () => {
                     </Link>
                 </SignedOut>
                 <SignedIn>
+                    <Link
+                        href="/home"
+                        className="bg-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
+                        <FontAwesomeIcon
+                            icon={faHouse}
+                            width={50}
+                            height={50}
+                            className="text-gray-400"
+                        />
+                    </Link>
                     <div className="bg-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
                         <FontAwesomeIcon
                             icon={faMessage}
@@ -63,7 +74,7 @@ const Navbar = async () => {
                     </div>
                     <div className="flex flex-col">
                         <span className="text-xs leading-3 font-medium">
-                            John Doe
+                            {user?.firstName} {user?.lastName}
                         </span>
                         <span className="text-[10px] text-gray-500 text-right">
                             {String(user?.publicMetadata.role ?? "")}
