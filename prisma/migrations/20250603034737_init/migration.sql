@@ -8,6 +8,7 @@ CREATE TABLE "User" (
     "name" TEXT,
     "surname" TEXT,
     "role" "Role" NOT NULL DEFAULT 'student',
+    "createdAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("clerkId")
 );
@@ -79,9 +80,11 @@ CREATE TABLE "TestVocation" (
 CREATE TABLE "Plan" (
     "id" TEXT NOT NULL,
     "vocationId" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
+    "name" TEXT,
     "description" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "userId" TEXT,
+    "testId" TEXT,
 
     CONSTRAINT "Plan_pkey" PRIMARY KEY ("id")
 );
@@ -94,6 +97,7 @@ CREATE TABLE "Topic" (
     "description" TEXT,
     "position" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "userId" TEXT,
 
     CONSTRAINT "Topic_pkey" PRIMARY KEY ("id")
 );
@@ -106,6 +110,7 @@ CREATE TABLE "Subtopic" (
     "description" TEXT,
     "position" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "userId" TEXT NOT NULL,
 
     CONSTRAINT "Subtopic_pkey" PRIMARY KEY ("id")
 );
@@ -115,6 +120,7 @@ CREATE TABLE "Link" (
     "id" TEXT NOT NULL,
     "subtopicId" TEXT NOT NULL,
     "url" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Link_pkey" PRIMARY KEY ("id")
@@ -156,6 +162,9 @@ CREATE UNIQUE INDEX "Vocation_name_key" ON "Vocation"("name");
 CREATE UNIQUE INDEX "TestVocation_testId_vocationId_key" ON "TestVocation"("testId", "vocationId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Plan_vocationId_name_key" ON "Plan"("vocationId", "name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Topic_planId_name_key" ON "Topic"("planId", "name");
 
 -- CreateIndex
@@ -189,13 +198,28 @@ ALTER TABLE "TestVocation" ADD CONSTRAINT "TestVocation_vocationId_fkey" FOREIGN
 ALTER TABLE "Plan" ADD CONSTRAINT "Plan_vocationId_fkey" FOREIGN KEY ("vocationId") REFERENCES "Vocation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Plan" ADD CONSTRAINT "Plan_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("clerkId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Plan" ADD CONSTRAINT "Plan_testId_fkey" FOREIGN KEY ("testId") REFERENCES "Test"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Topic" ADD CONSTRAINT "Topic_planId_fkey" FOREIGN KEY ("planId") REFERENCES "Plan"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Topic" ADD CONSTRAINT "Topic_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("clerkId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Subtopic" ADD CONSTRAINT "Subtopic_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES "Topic"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Subtopic" ADD CONSTRAINT "Subtopic_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("clerkId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Link" ADD CONSTRAINT "Link_subtopicId_fkey" FOREIGN KEY ("subtopicId") REFERENCES "Subtopic"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Link" ADD CONSTRAINT "Link_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("clerkId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TopicProgress" ADD CONSTRAINT "TopicProgress_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("clerkId") ON DELETE CASCADE ON UPDATE CASCADE;

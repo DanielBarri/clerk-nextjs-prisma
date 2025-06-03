@@ -20,6 +20,11 @@ model User {
   role      Role      @default(student)
   posts     Post[]
   tests     Test[]
+  plans     Plan[]
+  topics    Topic[]
+  subtopics Subtopic[]
+  links     Link[]
+  createdAt DateTime
   topicProgress TopicProgress[]
   subtopicProgress SubtopicProgress[]
 }
@@ -42,7 +47,8 @@ model Test {
   prompt        String?
   analysis      String?
   testQuestions TestQuestion[]
-  vocations     TestVocation[]  // Relación many-to-many
+  vocations     TestVocation[] 
+  plans        Plan[]        // Relación one-to-many con Plan
 }
 
 model Question {
@@ -89,10 +95,15 @@ model Plan {
   id         String   @id @default(uuid())
   vocation   Vocation @relation(fields: [vocationId], references: [id], onDelete: Cascade)
   vocationId String
-  name       String
+  name       String?
   description String? 
   createdAt  DateTime @default(now())
   topics     Topic[]
+  user       User?    @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
+  userId     String?
+  test      Test?    @relation(fields: [testId], references: [id], onDelete: SetNull)
+testId    String?
+  @@unique([vocationId, name])
 }
 
 model Topic {
@@ -103,6 +114,8 @@ model Topic {
   description String?
   position Int @default(0)
   createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
+  userId    String?
   subtopics Subtopic[]
   topicProgress TopicProgress[]
   @@unique([planId, name])
@@ -116,6 +129,8 @@ model Subtopic {
   description String?
   position Int @default(0)
   createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
+  userId    String
   links     Link[]
   subtopicProgress SubtopicProgress[]
   @@unique([topicId, name])
@@ -126,6 +141,8 @@ model Link {
   subtopic   Subtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
   subtopicId String
   url        String
+  user       User?    @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
+  userId     String
   createdAt  DateTime @default(now())
 }
 

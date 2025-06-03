@@ -59,19 +59,19 @@ const menuItems = [
             {
                 icon: faChessKnight,
                 label: "Plan de estudio",
-                href: "/list/plan",
+                href: "/plan",
                 visible: ["admin", "student", "parent", "teacher"],
             },
             {
                 icon: faRectangleList,
                 label: "Temas",
-                href: "/list/topics",
+                href: "/topics",
                 visible: ["admin", "student", "parent", "teacher"],
             },
             {
                 icon: faListCheck,
                 label: "Progreso",
-                href: "/list/progress",
+                href: "/progress",
                 visible: ["admin", "teacher", "student", "parent"],
             },
         ],

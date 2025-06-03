@@ -46,6 +46,7 @@ export async function POST(req: Request) {
                     email,
                     name: [first_name, last_name].filter(Boolean).join(" "),
                     role: "student", // Default role
+                    createdAt: new Date(),
                 },
             });
         } catch (err) {

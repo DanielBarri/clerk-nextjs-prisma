@@ -1,98 +1,56 @@
 "use client";
-import { useEffect, useState } from "react";
 
-type QuestionFromDB = {
-    id: string;
-    questionText: string;
-    answerOptions: string[];
-};
+import { useState } from "react";
+import { startTest, saveAnswers, finishTest } from "@/app/lib/data";
 
-type TempAnswerMap = Record<string, string>;
-
-export default function Quiz({ userId }: { userId: string | null }) {
-    const [questions, setQuestions] = useState<QuestionFromDB[]>([]);
+export default function QuizClient({
+    userId,
+    questions,
+}: {
+    userId: string;
+    questions: { id: string; questionText: string; answerOptions: string[] }[];
+}) {
     const [activeQuestion, setActiveQuestion] = useState<number>(0);
     const [testId, setTestId] = useState<string | null>(null);
     const [started, setStarted] = useState(false);
-    const [answers, setAnswers] = useState<TempAnswerMap>({});
+    const [answers, setAnswers] = useState<Record<string, string>>({});
 
-    useEffect(() => {
-        const fetchQuestions = async () => {
-            const res = await fetch("/api/questions");
-            const data = await res.json();
-            setQuestions(data);
-        };
-        fetchQuestions();
-    }, []);
-
-    const startTest = async () => {
-        if (!userId) return alert("Usuario no autenticado");
-
-        const res = await fetch("/api/tests", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId }),
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            setTestId(data.id);
-            setStarted(true);
-        } else {
-            alert("No se pudo iniciar el test.");
-        }
+    const begin = async () => {
+        const id = await startTest(userId);
+        setTestId(id);
+        setStarted(true);
     };
 
-    const finishQuiz = async () => {
+    const handleFinish = async () => {
         if (!testId) return;
-
-        const payload = {
-            testId,
-            answers: Object.entries(answers).map(
-                ([questionId, userAnswer]) => ({
-                    questionId,
-                    userAnswer,
-                })
-            ),
-        };
-
-        const saveRes = await fetch("/api/test-question/batch", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-        });
-
-        if (!saveRes.ok) {
-            return alert("Error al guardar respuestas.");
-        }
-
-        // Finaliza test y guarda timeFinished y el prompt
-        const finishRes = await fetch("/api/tests/finish", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ testId }),
-        });
-
-        if (finishRes.ok) {
-            window.location.href = `/quiz/results?testId=${testId}`;
-        } else {
-            alert("Error al finalizar el test.");
-        }
+        const formatted = Object.entries(answers).map(
+            ([questionId, userAnswer]) => ({
+                questionId,
+                userAnswer,
+            })
+        );
+        await saveAnswers(testId, formatted);
+        await finishTest(testId);
+        window.location.href = `/quiz/results?testId=${testId}`;
     };
 
-    const onAnswerSelected = (respuesta: string) => {
+    // Guarda la respuesta en el estado y en la base de datos
+    const onAnswerSelected = async (respuesta: string) => {
         const questionId = questions[activeQuestion].id;
         setAnswers((prev) => ({
             ...prev,
             [questionId]: respuesta,
         }));
+        if (testId) {
+            await saveAnswers(testId, [{ questionId, userAnswer: respuesta }]);
+        }
     };
 
     const nextQuestion = () => {
         if (activeQuestion < questions.length - 1) {
             setActiveQuestion((prev) => prev + 1);
         } else {
-            finishQuiz();
+            handleFinish();
         }
     };
 
@@ -112,16 +70,12 @@ export default function Quiz({ userId }: { userId: string | null }) {
                     Este test te ayudará a descubrir tus vocaciones.
                 </p>
                 <button
-                    onClick={startTest}
+                    onClick={begin}
                     className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                     Start Test
                 </button>
             </div>
         );
-    }
-
-    if (questions.length === 0) {
-        return <p className="text-center p-4">Cargando preguntas...</p>;
     }
 
     const current = questions[activeQuestion];

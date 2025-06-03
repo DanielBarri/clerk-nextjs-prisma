@@ -1,30 +1,32 @@
 import Link from "next/link";
-import { fetchTests } from "@/app/lib/data";
+import { fetchPlans } from "@/app/lib/data";
 
-async function TestsList() {
-    const tests = await fetchTests();
+async function PlansList() {
+    const plans = await fetchPlans();
 
     return (
         <div className="bg-white p-4 rounded-md">
             <div className="flex items-center justify-between">
-                <h1 className="text-xl font-semibold">Pruebas realizadas</h1>
-                <span className="text-xm text-gray-400">Ver todas</span>
+                <h1 className="text-xl font-semibold">
+                    Planes de estudios creados
+                </h1>
+                <span className="text-xm text-gray-400">Ver todos</span>
             </div>
             <div className="flex flex-col gap-4 mt-4">
                 <div className="bg-lamaSkyLight rounded-md p-4">
-                    {tests.map((test) => (
+                    {plans.map((plan) => (
                         <Link
-                            href={`/quiz/results?testId=${test.id}`}
-                            key={test.id}>
+                            href={`/plan/plans?planId=${plan.id}`}
+                            key={plan.id}>
                             <div className="bg-white rounded-md shadow p-4 mb-4">
                                 <div className="flex items-center justify-between mb-2">
                                     <h2 className="font-semibold text-base text-gray-600">
-                                        Test realizado el:
+                                        Plan de estudios realizado el:
                                     </h2>
                                     <span className="text-xs text-gray-400 rounded-full px-3 py-1">
-                                        {test.timeFinished
+                                        {plan.createdAt
                                             ? new Date(
-                                                  test.timeFinished
+                                                  plan.createdAt
                                               ).toLocaleDateString("es-MX", {
                                                   day: "2-digit",
                                                   month: "short",
@@ -34,11 +36,11 @@ async function TestsList() {
                                     </span>
                                 </div>
                                 <div className="flex flex-wrap w-full text-sm text-gray-400 mt-1">
-                                    {test.vocations.map((vocation) => (
+                                    {plan.topics.map((topic) => (
                                         <span
-                                            key={vocation.id}
+                                            key={topic.id}
                                             className="flex bg-blue-500 text-white font-light text-xs rounded-full px-3 py-1 mr-2 mb-2">
-                                            {vocation.name}
+                                            {topic.name}
                                         </span>
                                     ))}
                                 </div>
@@ -51,4 +53,4 @@ async function TestsList() {
     );
 }
 
-export default TestsList;
+export default PlansList;
