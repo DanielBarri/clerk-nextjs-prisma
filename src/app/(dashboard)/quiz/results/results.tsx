@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-import { analyzeProfile, generateStudyPlan } from "@/app/actions/analyze";
+import { analyzeProfile } from "@/app/actions/analyzeProfile";
+import { generateStudyPlan } from "@/app/actions/generateStudyPlan";
 import { SubmitWithModal } from "@/components/LoadingModal";
 
 interface Props {
@@ -32,12 +33,8 @@ export default async function QuizResults({ testId }: Props) {
 
     async function analyzeAction() {
         "use server";
-        const analyzeId = await analyzeProfile(testId!);
-        if (analyzeId) {
-            redirect(`/quiz/results?testId=${testId}`);
-        } else {
-            console.error("Error analyzing test");
-        }
+        await analyzeProfile(testId!);
+        redirect(`/quiz/results?testId=${testId}`);
     }
 
     async function generatePlanAction(formData: FormData) {

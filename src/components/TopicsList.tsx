@@ -1,8 +1,22 @@
 import Link from "next/link";
-import { fetchPlans } from "@/app/lib/data";
+import { fetchTopics } from "@/app/lib/data";
+
+type Subtopic = {
+    id: string;
+    name: string;
+    description: string | null;
+};
+
+type Topic = {
+    id: string;
+    name: string;
+    description: string | null;
+    createdAt?: string | Date;
+    subtopics: Subtopic[];
+};
 
 async function TopicsList() {
-    const plans = await fetchPlans();
+    const topics: Topic[] = await fetchTopics();
 
     return (
         <div className="bg-white p-4 rounded-md">
@@ -14,19 +28,19 @@ async function TopicsList() {
             </div>
             <div className="flex flex-col gap-4 mt-4">
                 <div className="bg-lamaSkyLight rounded-md p-4">
-                    {plans.map((plan) => (
+                    {topics.map((topic) => (
                         <Link
-                            href={`/plan/plans?planId=${plan.id}`}
-                            key={plan.id}>
+                            href={`/topics?topicId=${topic.id}`}
+                            key={topic.id}>
                             <div className="bg-white rounded-md shadow p-4 mb-4">
                                 <div className="flex items-center justify-between mb-2">
                                     <h2 className="font-semibold text-base text-gray-600">
-                                        Plan de estudios realizado el:
+                                        {topic.name}
                                     </h2>
                                     <span className="text-xs text-gray-400 rounded-full px-3 py-1">
-                                        {plan.createdAt
+                                        {topic.createdAt
                                             ? new Date(
-                                                  plan.createdAt
+                                                  topic.createdAt
                                               ).toLocaleDateString("es-MX", {
                                                   day: "2-digit",
                                                   month: "short",
@@ -36,11 +50,11 @@ async function TopicsList() {
                                     </span>
                                 </div>
                                 <div className="flex flex-wrap w-full text-sm text-gray-400 mt-1">
-                                    {plan.topics.map((topic) => (
+                                    {topic.subtopics.map((subtopic) => (
                                         <span
-                                            key={topic.id}
+                                            key={subtopic.id}
                                             className="flex bg-blue-500 text-white font-light text-xs rounded-full px-3 py-1 mr-2 mb-2">
-                                            {topic.name}
+                                            {subtopic.name}
                                         </span>
                                     ))}
                                 </div>

@@ -1,3 +1,5 @@
+import TopicsList from "@/components/TopicsList";
+
 export default function TopicsLayout({
     children,
 }: Readonly<{
@@ -11,7 +13,7 @@ export default function TopicsLayout({
             </div>
             {/* RIGHT */}
             <div className="h-full xl:w-1/3 flex flex-col gap-8">
-                TopicsList Placeholder
+                <TopicsList />
             </div>
         </div>
     );

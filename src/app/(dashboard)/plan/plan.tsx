@@ -47,7 +47,7 @@ export default async function PlanCreated({ planId }: Props) {
                                 {topic?.subtopics.map((subtopic) => {
                                     return (
                                         <Link
-                                            href={`/topics?topicId=${subtopic.id}`}
+                                            href={`/topics?topicId=${topic.id}`}
                                             key={subtopic.id}
                                             className="flex flex-col gap-2 w-[100%]lg:w-3/10 text-gray-500 border border-gray-200 rounded-md py-2 px-4 m-2 hover:bg-gray-200 transition-colors">
                                             <h3 className="font-bold text-xs">

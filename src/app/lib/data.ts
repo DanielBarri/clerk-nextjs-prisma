@@ -127,6 +127,7 @@ export async function startPlan(vocationId: string) {
         data: {
             vocationId,
             name: "New Plan",
+            description: "Default description",
         },
     });
     return plan.id;

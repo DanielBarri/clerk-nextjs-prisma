@@ -18,25 +18,8 @@ model User {
   name      String?
   surname   String?
   role      Role      @default(student)
-  posts     Post[]
   tests     Test[]
-  plans     Plan[]
-  topics    Topic[]
-  subtopics Subtopic[]
-  links     Link[]
   createdAt DateTime
-  topicProgress TopicProgress[]
-  subtopicProgress SubtopicProgress[]
-}
-
-model Post {
-  id        String   @id @default(uuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  author    User     @relation(fields: [authorId], references: [clerkId], onDelete: Cascade)
-  authorId  String
-  createdAt DateTime @default(now())
 }
 
 model Test {
@@ -75,6 +58,7 @@ model Vocation {
   name      String   @unique
   createdAt DateTime @default(now())
   plans     Plan[]
+  selectedPlanId String?
   tests     TestVocation[] // Relación many-to-many
 }
 
@@ -95,12 +79,11 @@ model Plan {
   id         String   @id @default(uuid())
   vocation   Vocation @relation(fields: [vocationId], references: [id], onDelete: Cascade)
   vocationId String
-  name       String?
-  description String? 
+  name       String
+  description String
   createdAt  DateTime @default(now())
   topics     Topic[]
-  user       User?    @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
-  userId     String?
+  selectedTopicId String?
   test      Test?    @relation(fields: [testId], references: [id], onDelete: SetNull)
 testId    String?
   @@unique([vocationId, name])
@@ -111,13 +94,12 @@ model Topic {
   plan      Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
   planId    String
   name      String
-  description String?
+  description String
   position Int @default(0)
   createdAt DateTime @default(now())
-  user      User?    @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
-  userId    String?
   subtopics Subtopic[]
-  topicProgress TopicProgress[]
+  selectedSubtopicId String?
+  progress  Int @default(0)
   @@unique([planId, name])
 }
 
@@ -126,13 +108,10 @@ model Subtopic {
   topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
   topicId   String
   name      String
-  description String?
+  description String
   position Int @default(0)
   createdAt DateTime @default(now())
-  user      User?    @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
-  userId    String
   links     Link[]
-  subtopicProgress SubtopicProgress[]
   @@unique([topicId, name])
 }
 
@@ -141,29 +120,7 @@ model Link {
   subtopic   Subtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
   subtopicId String
   url        String
-  user       User?    @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
-  userId     String
   createdAt  DateTime @default(now())
-}
-
-model TopicProgress {
-  id       String @id @default(uuid())
-  user     User   @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
-  userId   String
-  topic    Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  topicId  String
-  completedAt DateTime? @default(now()) @updatedAt
-  @@unique([userId, topicId])
-}
-
-model SubtopicProgress {
-  id         String @id @default(uuid())
-  user       User   @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
-  userId     String
-  subtopic   Subtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
-  subtopicId String
-  completedAt DateTime? @default(now()) @updatedAt
-  @@unique([userId, subtopicId])
 }
 
 enum Role {
