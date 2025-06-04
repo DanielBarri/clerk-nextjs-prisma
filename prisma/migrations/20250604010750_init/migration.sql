@@ -5,8 +5,8 @@ CREATE TYPE "Role" AS ENUM ('student', 'teacher', 'parent', 'admin');
 CREATE TABLE "User" (
     "clerkId" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "surname" TEXT NOT NULL,
+    "name" TEXT,
+    "surname" TEXT,
     "role" "Role" NOT NULL DEFAULT 'student',
     "createdAt" TIMESTAMP(3) NOT NULL,
 
@@ -49,6 +49,7 @@ CREATE TABLE "Vocation" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "selectedPlanId" TEXT,
 
     CONSTRAINT "Vocation_pkey" PRIMARY KEY ("id")
 );
@@ -71,6 +72,7 @@ CREATE TABLE "Plan" (
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "selectedTopicId" TEXT,
     "testId" TEXT,
 
     CONSTRAINT "Plan_pkey" PRIMARY KEY ("id")
@@ -84,6 +86,7 @@ CREATE TABLE "Topic" (
     "description" TEXT NOT NULL,
     "position" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "selectedSubtopicId" TEXT,
     "progress" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "Topic_pkey" PRIMARY KEY ("id")
@@ -105,7 +108,10 @@ CREATE TABLE "Subtopic" (
 CREATE TABLE "Link" (
     "id" TEXT NOT NULL,
     "subtopicId" TEXT NOT NULL,
-    "url" TEXT NOT NULL,
+    "videoId" TEXT NOT NULL,
+    "thumbnail" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "channelTitle" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Link_pkey" PRIMARY KEY ("id")

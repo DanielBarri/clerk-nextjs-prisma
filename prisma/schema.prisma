@@ -119,7 +119,10 @@ model Link {
   id         String   @id @default(uuid())
   subtopic   Subtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
   subtopicId String
-  url        String
+  videoId      String
+  thumbnail String
+  title     String
+  channelTitle String
   createdAt  DateTime @default(now())
 }
 

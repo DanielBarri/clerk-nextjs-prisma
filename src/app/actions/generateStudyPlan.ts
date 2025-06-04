@@ -16,11 +16,6 @@ const planSchema = z.object({
                 z.object({
                     name: z.string(),
                     description: z.string(),
-                    links: z.array(
-                        z.object({
-                            url: z.string(),
-                        })
-                    ),
                 })
             ),
         })
@@ -85,12 +80,6 @@ export async function generateStudyPlan(vocationId: string) {
                                 topic.subtopics?.map((sub) => ({
                                     name: sub.name,
                                     description: sub.description,
-                                    links: {
-                                        create:
-                                            sub.links?.map((link) => ({
-                                                url: link.url,
-                                            })) ?? [],
-                                    },
                                 })) ?? [],
                         },
                     })),

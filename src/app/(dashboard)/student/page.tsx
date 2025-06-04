@@ -1,7 +1,3 @@
-"use client";
-
-import Announcements from "@/components/TestsList";
-
 const StudentPage = () => {
     return (
         <div className="p-4 flex gap-4 flex-col xl:flex-row">
@@ -15,9 +11,7 @@ const StudentPage = () => {
             </div>
 
             {/* RIGHT */}
-            <div className="w-full xl:w-1/3 flex flex-col gap-8">
-                <Announcements />
-            </div>
+            <div className="w-full xl:w-1/3 flex flex-col gap-8"></div>
         </div>
     );
 };

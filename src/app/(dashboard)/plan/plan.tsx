@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import Link from "next/link";
+import SaveVideoButton from "@/components/saveVideoButton";
 
 interface Props {
     planId?: string;
@@ -33,30 +33,25 @@ export default async function PlanCreated({ planId }: Props) {
             <p className="text-gray-700 mb-4">
                 {plan?.description ?? "Sin descripción"}
             </p>
-            <div className="flex flex-col items-center gap-2 mb-4">
+            <div className="flex flex-col items-center mb-2">
                 {plan?.topics.map((topic) => {
                     return (
-                        <div key={topic.id} className="mb-4">
-                            <h2 className="text-md font-semibold text-gray-800 mb-2">
+                        <div key={topic.id} className="mb-6">
+                            <h2 className="text-md font-semibold text-gray-800 ">
                                 {topic.name}
                             </h2>
                             <p className="text-sm text-gray-600">
                                 {topic.description}
                             </p>
-                            <div className="flex flex-col sm:flex-row justify-center gap-2 mt-2">
+                            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
                                 {topic?.subtopics.map((subtopic) => {
                                     return (
-                                        <Link
-                                            href={`/topics?topicId=${topic.id}`}
-                                            key={subtopic.id}
-                                            className="flex flex-col gap-2 w-[100%]lg:w-3/10 text-gray-500 border border-gray-200 rounded-md py-2 px-4 m-2 hover:bg-gray-200 transition-colors">
-                                            <h3 className="font-bold text-xs">
-                                                {subtopic.name}
-                                            </h3>
-                                            <p className="text-xs font-normal">
-                                                {subtopic.description}
-                                            </p>
-                                        </Link>
+                                        <div key={subtopic.id} className="">
+                                            <SaveVideoButton
+                                                subtopic={subtopic}
+                                                query={subtopic.name}
+                                            />
+                                        </div>
                                     );
                                 })}
                             </div>
