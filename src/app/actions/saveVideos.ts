@@ -28,8 +28,44 @@ export async function saveVideos({
     }
 
     // 3. Filtrar y mapear videos válidos
-    const newVideos = items
-        .filter((item) => {
+    interface YouTubeThumbnail {
+        url: string;
+        width?: number;
+        height?: number;
+    }
+
+    interface YouTubeThumbnails {
+        default: YouTubeThumbnail;
+        medium?: YouTubeThumbnail;
+        high?: YouTubeThumbnail;
+        [key: string]: YouTubeThumbnail | undefined;
+    }
+
+    interface YouTubeSnippet {
+        title: string;
+        channelTitle: string;
+        thumbnails: YouTubeThumbnails;
+    }
+
+    interface YouTubeVideoId {
+        videoId: string;
+    }
+
+    interface YouTubeItem {
+        id?: YouTubeVideoId;
+        snippet?: YouTubeSnippet;
+    }
+
+    interface NewVideo {
+        subtopicId: string;
+        videoId: string;
+        title: string;
+        thumbnail: string;
+        channelTitle: string;
+    }
+
+    const newVideos: NewVideo[] = (items as YouTubeItem[])
+        .filter((item: YouTubeItem) => {
             const videoId = item?.id?.videoId;
             const snippet = item?.snippet;
             const thumbnail =
@@ -48,11 +84,11 @@ export async function saveVideos({
 
             return true;
         })
-        .map((item) => {
-            const snippet = item.snippet;
+        .map((item: YouTubeItem): NewVideo => {
+            const snippet = item.snippet as YouTubeSnippet;
             return {
                 subtopicId,
-                videoId: item.id.videoId,
+                videoId: (item.id as YouTubeVideoId).videoId,
                 title: snippet.title,
                 thumbnail:
                     snippet.thumbnails.high?.url ??
