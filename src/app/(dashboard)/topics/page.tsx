@@ -2,13 +2,11 @@
 import prisma from "@/lib/prisma";
 import TopicPageClient from "@/components/topicPageClient";
 
-export default async function TopicPage({
-    searchParams,
-}: {
-    searchParams: { [key: string]: string | undefined };
+export default async function TopicPage(props: {
+    searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-    const params = await searchParams;
-    const subtopicId = params.subtopicId;
+    const searchParams = await props.searchParams;
+    const subtopicId = searchParams.subtopicId;
 
     if (!subtopicId) {
         return <div>No se proporcionó subtopicId.</div>;
